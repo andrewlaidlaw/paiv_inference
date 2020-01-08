@@ -1,0 +1,135 @@
+<html>
+
+<head>
+  <title>PowerAI Vision Image Classification</title>
+</head>
+
+<body>
+  <form enctype="multipart/form-data" action="" method="POST">
+    <div class="formframe">
+      <span id="fileSelector">
+        <input type="file" data-widget="fileinput" accept="image/*" class="file-upload" data-multiple="false" name="files" id="file-upload" onchange="uploadImage()">
+      <label for="file-upload" class="button" id=file-upload-label>Choose a file</label>
+      </span>
+      <div id="info-panel" class="info" style="visibility:hidden"></div>
+      <img src="blank.jpg" width=600 id="imagebox" style="visibility:hidden"/>
+    </div>
+  </form>
+
+    <script type="text/javascript">
+      function uploadImage()
+      {
+
+          // This script provides a generic HTML page with browser side classification of images using
+          // a PowerAI Vision trained model which has been deployed.
+
+          // This is the API URL for your AI Vision trained model
+          var apiurl = 'http://caplonsgprd-4.securegateway.appdomain.cloud:15047/chocolate';
+
+          // Define the variables related to the form elements
+          var fileSelect = document.getElementById("file-upload");
+          var fileLabel = document.getElementById("file-upload-label");
+          var infoPanel = document.getElementById("info-panel");
+          var imageBox = document.getElementById('imagebox');
+
+          imageBox.style = "visibility:hidden";
+          infoPanel.style = "visibility:visible";
+          infoPanel.innerHTML = "Variables Set";
+
+          // Update button text
+          fileSelect.disabled = true;
+          fileLabel.innerHTML ="Uploading...";
+          fileLabel.className = "button-disabled";
+
+          // Catch if no file is chosen
+          if (fileSelect.files.length == 0) {
+            infoPanel.innerHTML = "No file selected";
+            infoPanel.className = "error"
+            fileLabel.innerHTML = "Choose a file";
+            fileLabel.className = "button";
+            fileSelect.disabled = false;
+          }
+
+          // Get the selected files from the input
+          var files = fileSelect.files;
+          infoPanel.innerHTML = "File name is: " + files[0].name;
+
+          // Create new FormData element and add file to it
+          var formData = new FormData();
+          formData.append("files" ,files[0], files[0].name);
+          infoPanel.innerHTML = "Form data created";
+
+          // Set up the request
+          var xhr = new XMLHttpRequest();
+
+          // Open the connection
+          xhr.open('POST', apiurl, true);
+
+          // Set up a handler for when the request finishes
+          xhr.onload = function () {
+            if (xhr.status === 200) {
+              // File(s) uploaded.
+              infoPanel.className = "info";
+              fileLabel.innerHTML = 'Uploaded';
+              infoPanel.innerHTML = "Upload complete";
+              // Returned data is in JSON format so needs to be parsed
+              var data = JSON.parse(xhr.response);
+
+              // Return whether the api call was a success or not
+              infoPanel.innerHTML = "Response: " + data.result;
+
+              // When successful present the result
+              if (data.result == "success") {
+
+                // Format the output of your result
+                var result = "";
+
+                // Pull in the category, and then the probability, converted to a percentage figure
+                result += (data.classified[0][0] + " (" + (data.classified[0][1] *100).toFixed(0) + "%)");
+
+                if (data.classified[0][0] == "_negative_") {
+                    // Create the output
+                    imageBox.src = window.URL.createObjectURL(files[0]);
+                    imageBox.style = "visibility:visible";
+                    infoPanel.innerHTML = "No classification was found for this image. Response was " + result;
+                    fileLabel.innerHTML = "Analysis complete";
+                    infoPanel.className = "error";
+
+                  } else {
+
+                    // Create the output
+                    imageBox.src = window.URL.createObjectURL(files[0]);
+                    imageBox.style = "visibility:visible";
+                    infoPanel.innerHTML = "Result: " + result;
+                    fileLabel.innerHTML = "Analysis complete";
+                    infoPanel.className = "success";
+
+                  }
+
+              } else {
+                // Handle non-successful image recognition
+                infoPanel.className = "error";
+                infoPanel.innerHTML = "File was not recognised as an image by the API. Please try uploading an image file.";
+              }
+
+              // Allow the user to upload another image
+              fileLabel.innerHTML = "Choose another file";
+              fileLabel.className = "button";
+              fileSelect.disabled = false;
+
+            } else {
+              // Handle non-succesful contact with the API
+              infoPanel.className = "error";
+              infoPanel.textContent = "An error occurred when accessing the API.";
+            }
+          };
+
+          // Send the file to the API
+          xhr.send(formData);
+          infoPanel.textContent = "Sending file";
+          infoPanel.className = "info";
+        }
+    </script>
+
+  </body>
+</html>

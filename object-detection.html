@@ -1,0 +1,147 @@
+<html>
+
+<head>
+  <title>PowerAI Vision Object Detection</title>
+</head>
+
+<body>
+  <form enctype="multipart/form-data" action="" method="POST">
+    <div class="formframe">
+      <span id="fileSelector">
+        <input type="file" data-widget="fileinput" accept="image/*" class="file-upload" data-multiple="false" name="files" id="file-upload" onchange="uploadImage()">
+      <label for="file-upload" class="button" id=file-upload-label>Choose a file</label>
+      </span>
+      <div id="info-panel" class="info" style="visibility:hidden"></div>
+      <canvas width=800 height=400 id="imagebox" style="visibility:hidden"></canvas>
+    </div>
+  </form>
+
+    <script type="text/javascript">
+      function uploadImage()
+      {
+        // This is the API URL for your AI Vision trained model
+        var apiurl = 'http://caplonsgprd-4.securegateway.appdomain.cloud:15047/chocdetect';
+
+        // Define the variables related to the form elements
+        var infoPanel = document.getElementById("info-panel");
+        var fileLabel = document.getElementById("file-upload-label");
+        var imageBox=document.getElementById("imagebox");
+        var ctx=imageBox.getContext("2d");
+
+        var fileSelect = document.getElementById("file-upload");
+        var files=fileSelect.files;
+
+        imageBox.style = "visibility:hidden";
+        infoPanel.style = "visibility:visible";
+        infoPanel.innerHTML = "Variables Set";
+
+        // Update button text
+        fileSelect.disabled = true;
+        fileLabel.innerHTML ="Uploading...";
+        fileLabel.className = "button-disabled";
+
+        // Catch if no file is chosen
+        if (fileSelect.files.length == 0) {
+          infoPanel.innerHTML = "No file selected";
+          infoPanel.className = "error"
+          fileLabel.innerHTML = "Choose a file";
+          fileLabel.className = "button";
+          fileSelect.disabled = false;
+        }
+
+        // Set the ratio of the infered image to the presented image
+        var ratio=1.0;
+
+        // Draw the image onto the canvas element
+        img=new Image();
+        img.onload=function() {
+          ratio=imageBox.width/img.width;
+          infoPanel.innerHTML=ratio
+          imageBox.height=img.height * ratio;
+          ctx.drawImage(img,0,0,img.width,img.height,0,0,imageBox.width,imageBox.height);
+        }
+
+        // Load the image
+        img.src=window.URL.createObjectURL(files[0]);
+
+        // Get the selected files from the input
+        var files = fileSelect.files;
+        infoPanel.innerHTML = "File name is: " + files[0].name;
+
+        // Create new FormData element and add file to it
+        var formData = new FormData();
+        formData.append("files" ,files[0], files[0].name);
+        infoPanel.innerHTML = "Form data created";
+
+        // Set up the request
+        var xhr = new XMLHttpRequest();
+
+        // Open the connection
+        xhr.open('POST', apiurl, true);
+
+        // Set up a handler for when the request finishes
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            // File(s) uploaded.
+            imageBox.style = "visibility:visible";
+            infoPanel.className = "info";
+            fileLabel.innerHTML = 'Uploaded';
+            infoPanel.innerHTML = "Upload complete";
+            // Returned data is in JSON format so needs to be parsed
+            var data = JSON.parse(xhr.response);
+
+            // Return whether the api call was a success or not
+            infoPanel.innerHTML = "Response: " + data.result;
+
+            // When successful present the result
+            if (data.result == "success") {
+
+              // Handle the response from the api
+              data.classified.forEach(labelImage);
+
+              function labelImage(item, index) {
+                var xmin = item.xmin * ratio;
+                var xmax = item.xmax * ratio;
+                var ymin = item.ymin * ratio;
+                var ymax = item.ymax * ratio;
+                var label = item.label;
+
+                // Draw the rectangle
+                ctx.strokeRect(xmin, ymin, (xmax - xmin), (ymax-ymin));
+
+                // Write the labelImage
+                ctx.font = "20px Verdana";
+                ctx.fillStyle = "blue";
+                ctx.fillText(label, xmin+2, ymax-2);
+              }
+
+            } else {
+              // Handle non-successful image recognition
+              infoPanel.className = "error";
+              infoPanel.innerHTML = "File was not recognised as an image by the API. Please try uploading an image file.";
+            }
+
+            // Allow the user to upload another image
+            fileLabel.innerHTML = "Choose another file";
+            fileLabel.className = "button";
+            fileSelect.disabled = false;
+
+          } else {
+            // Handle non-succesful contact with the API
+            infoPanel.className = "error";
+            infoPanel.textContent = "An error occurred when accessing the API.";
+          }
+
+        }
+
+        // Send the file to the API
+        xhr.send(formData);
+        infoPanel.textContent = "Sending file";
+        infoPanel.className = "info";
+        infoPanel.style = "visibility:visible";
+      }
+
+    </script>
+
+  </body>
+</html>
