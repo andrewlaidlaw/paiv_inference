@@ -1,23 +1,31 @@
-// Replace variable 'apiurl' with the endpoint of your deployed PowerAI Vision object detection model
-
+<!DOCTYPE html>
 <html>
+
+<!-- Replace variable 'apiurl' with the endpoint of your deployed PowerAI Vision classification model -->
 
 <head>
   <title>PowerAI Vision Object Detection</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<!-- Styles can be moved to external stylesheet -->
+<!--  <style>
+    body  {background-color: lightgray; font-family: sans-serif; font-size: 12pt;}
+  </style> -->
+
 </head>
 
 <body>
-  <form enctype="multipart/form-data" action="" method="POST">
-    <div class="formframe">
-      <span id="fileSelector">
-        <input type="file" data-widget="fileinput" accept="image/*" class="file-upload" data-multiple="false" name="files" id="file-upload" onchange="uploadImage()">
-      <label for="file-upload" class="button" id=file-upload-label>Choose a file</label>
+  <form enctype="multipart/form-data" action="" class="w3-main w3-content w3-center" method="POST">
+    <div class="formframe w3-bar w3-white">
+      <span id="fileSelector" class="">
+        <input type="file" data-widget="fileinput" accept="image/*" class="file-upload w3-btn w3-border-blue w3-pale-blue" data-multiple="false" name="files" id="file-upload" onchange="uploadImage()">
+        <label for="file-upload" class="button" id=file-upload-label>Choose a file</label>
       </span>
-      <div id="info-panel" class="info" style="visibility:hidden"></div>
-      <canvas width=800 height=400 id="imagebox" style="visibility:hidden"></canvas>
+      <div id="info-panel" class="info w3-bar w3-col" style="visibility:hidden"></div>
+      <canvas width=700 height=1 id="imagebox" style="visibility:hidden"></canvas>
     </div>
   </form>
 
+<!-- Script can be moved to external js file -->
     <script type="text/javascript">
       function uploadImage()
       {

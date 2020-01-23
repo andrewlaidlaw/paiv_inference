@@ -1,9 +1,16 @@
-// Replace variable 'apiurl' with the endpoint of your deployed PowerAI Vision classification model
-
+<!DOCTYPE html>
 <html>
+
+<!-- Replace variable 'apiurl' with the endpoint of your deployed PowerAI Vision classification model -->
 
 <head>
   <title>PowerAI Vision Image Classification</title>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<!-- Styles can be moved to external stylesheet -->
+<!--  <style>
+    body  {background-color: lightgray; font-family: sans-serif; font-size: 12pt;}
+  </style> -->
+
 </head>
 
 <body>
@@ -14,10 +21,11 @@
       <label for="file-upload" class="button" id=file-upload-label>Choose a file</label>
       </span>
       <div id="info-panel" class="info" style="visibility:hidden"></div>
-      <img src="blank.jpg" width=600 id="imagebox" style="visibility:hidden"/>
+      <img src="blank.jpg" width=70% id="imagebox" style="visibility:hidden"/>
     </div>
   </form>
 
+<!-- Script can be moved to external js file -->
     <script type="text/javascript">
       function uploadImage()
       {
